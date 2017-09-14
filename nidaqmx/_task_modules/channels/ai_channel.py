@@ -43,6 +43,54 @@ class AIChannel(Channel):
         return 'AIChannel(name={0})'.format(self._name)
 
     @property
+    def ai_chop_enable(self):
+        """
+        float: Specifies the AC excitation frequency in Hertz.
+        """
+        val = ctypes.c_bool()
+
+        cfunc = lib_importer.windll.DAQmxGetAIChopEnable
+        if cfunc.argtypes is None:
+            with cfunc.arglock:
+                if cfunc.argtypes is None:
+                    cfunc.argtypes = [
+                        lib_importer.task_handle, ctypes_byte_str,
+                        ctypes.POINTER(ctypes.c_bool)]
+
+        error_code = cfunc(
+            self._handle, self._name, ctypes.byref(val))
+        check_for_error(error_code)
+
+        return val.value
+
+    @ai_chop_enable.setter
+    def ai_chop_enable(self, val):
+        cfunc = lib_importer.windll.DAQmxSetAIChopEnable
+        if cfunc.argtypes is None:
+            with cfunc.arglock:
+                if cfunc.argtypes is None:
+                    cfunc.argtypes = [
+                        lib_importer.task_handle, ctypes_byte_str,
+                        ctypes.c_bool]
+
+        error_code = cfunc(
+            self._handle, self._name, val)
+        check_for_error(error_code)
+
+    @ai_chop_enable.deleter
+    def ai_chop_enable(self):
+        cfunc = lib_importer.windll.DAQmxResetAIChopEnable
+        if cfunc.argtypes is None:
+            with cfunc.arglock:
+                if cfunc.argtypes is None:
+                    cfunc.argtypes = [
+                        lib_importer.task_handle, ctypes_byte_str]
+
+        error_code = cfunc(
+            self._handle, self._name)
+        check_for_error(error_code)
+
+    @property
     def ai_ac_excit_freq(self):
         """
         float: Specifies the AC excitation frequency in Hertz.
